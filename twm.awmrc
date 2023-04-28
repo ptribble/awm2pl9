@@ -1,0 +1,40 @@
+# $Source $
+# $Author $
+# $Header $
+#
+# This is a startup file for awm that produces a twm (using defaults)
+# lookalike (sort of) at the top level. Some semantics of resize and the icon
+# appearances are incompatable but will change in the near future.
+# The major difference in appearance you'll notice is the "bold"
+# appearance of the window. This is due to the fact that I use the "bold"
+# pixmap to tile the title window, I don't draw it on. I have to do this
+# since, unlike twm, any arbitrary number of gadgets (of any arbitrary size)
+# might be defined and it would be far too much trouble to try and draw
+# a tile in between all/some of them.
+#
+# Don't forget that you need to use twm.Xdefaults as well as this file.
+#
+
+resetbindings
+resetmenus
+resetgadgets
+
+gadget[0] = (twm.iconify.bm) ^ 1 | LeftGravity
+gadget[1] = (twm.resize.bm) ^ 1 | RightGravity
+gadget[2] = (twm.focus.bm) ^ 2 | RightGravity
+
+# FUNCTION	KEYS	CONTEXT		MOUSE BUTTON ACTIONS
+f.move=			:title|icon:	middle motion
+f.raise=		:title:		left down
+f.raise=		:title:		left up
+f.lower=		:title:		right down
+f.iconify=		:g[0]:		left down
+f.iconify=		:g[0]:		middle down
+f.iconify=		:g[0]:		right down
+f.iconify=		:icon:		left down
+f.resize=		:g[1]:		left down
+f.resize=		:g[1]:		middle down
+f.resize=		:g[1]:		right down
+f.focus=		:g[2]:		left down
+f.focus=		:g[2]:		middle down
+f.focus=		:g[2]:		right down

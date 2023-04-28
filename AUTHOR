@@ -1,0 +1,13 @@
+(Message inbox:899)
+Return-Path: mips!ardent!kmw
+Received:  by wyse.wyse.com (5.58/Wyse master/5-13-88)
+	id AA02751; Thu, 16 Feb 89 18:02:22 PST
+Received: by mips.com id AA18851(1.0); Thu, 16 Feb 89 17:31:35 PST
+Received: by ardent.com; from sim; id AA01770; Thu, 16 Feb 89 16:35:50 PST
+Received: by sim.ardent.com (1.1/SMI-3.0DEV3)
+	id AA06620; Thu, 16 Feb 89 16:36:19 PST
+Date: Thu, 16 Feb 89 16:36:19 PST
+From: mips!ardent.com!kmw (Ken Wallich)
+Message-Id: <8902170036.AA06620@sim.ardent.com>
+To: mips!wyse.com!mikew
+

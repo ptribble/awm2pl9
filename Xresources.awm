@@ -1,0 +1,6 @@
+Dtlogin*altDtsIncrement:	True
+
+Dtlogin*altDtName:	awm
+Dtlogin*altDtKey: 	/usr/bin/awm
+Dtlogin*altDtStart: 	/usr/dt/config/Xsession.awm
+Dtlogin*altDtLogo:	JDS_s10

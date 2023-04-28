@@ -1,0 +1,29 @@
+#!/bin/ksh 
+#####################################################################
+###  File:              Xsession2.awm  Version 1.00
+###
+###  Default Location:  /usr/dt/config/Xsession2.awm
+###
+###  Purpose:           awm start script
+###
+###  Invoked by:        /usr/dt/bin/Xsession
+###
+#####################################################################
+
+# First a little namespace cleanup of vars associated with this
+# (and /usr/dt/bin/Xsession.ow) scripts.
+
+unset SDT_ALT_SESSION
+unset SDT_ALT_HELLO
+unset SDT_NO_DSDM
+
+XINITRC="/usr/dt/config/Xinitrc.awm"
+
+echo 'awm'
+
+if [ -f $XINITRC ]; then
+    echo "using xinitrc file: $XINITRC"
+    /bin/ksh $XINITRC
+else
+    echo "xinitrc file: $XINITRC not found"
+fi

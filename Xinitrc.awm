@@ -1,0 +1,22 @@
+#!/bin/ksh
+#####################################################################
+###  File:              Xinitrc.awm  Version 1.00
+###
+###  Default Location:  /usr/dt/config/Xinitrc.awm
+###
+###  Purpose:           X session startup script 
+###
+###  Invoked by:        /usr/dt/bin/Xsession
+###
+#####################################################################
+
+if [ -f $HOME/.Xresources ]; then
+    xrdb -merge $HOME/.Xresources
+elif [ -f $HOME/.Xdefaults ]; then
+    xrdb -merge $HOME/.Xdefaults
+fi
+
+echo "Starting awm"
+
+xrdb -merge /usr/lib/X11/awm/awm.Xdefaults
+exec /usr/bin/awm

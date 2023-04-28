@@ -1,0 +1,12 @@
+Here are a few contributed bitmaps (as well as some of my own) that
+might be useful to people designing interfaces with awm. As noted
+in the man page, care should be taken when constructing menu panes
+with these as they are not all the same size. Your contributions
+to this collections are welcomed.
+
+It should be noted that hackers don't usually make very good artists.
+If someone more artistically inclined (and willing to work within the
+limits of a 16x16 or 32x32 frame) is interested in adding to this
+collection, please do!
+
+					- Jordan

@@ -1,0 +1,45 @@
+The menu package you'll find in this release is derived from the RTL
+menu package, version 2.0. RTL is currently at revision level 3, which
+no doubt fixes many of the bugs in version 2, but I cannot easily update 
+to it. Here's why:
+
+The RTL menus, as they come "out of the box" give you the ability
+to create hierarchical walking menus. Each pane is in a fixed font
+and can have, in addition to text, a check mark (denoting some boolean
+condition), an arrow (denoting an adjacent pull-right menu) or grey-stippled
+text (denoting a disabled item). This was almost ideal for my purposes
+since I needed checkmarks for boolean variables and arrows for pull-right
+menus (not to mention the pull-right menus themselves). However, since
+awm tries hard to present a pictoral interface (with gadget boxes and
+the like), it was necessary to make modifications to the menu package
+to support:
+
+o Arbitrary pixmaps in menus panes, rather than just text.
+
+o A "bold" font for panes that is used for menu titles (which users
+  of uwm, awm's predecessor, had come to expect).
+
+o The removal of the "all menu panes must be the same height" restriction
+  to accomodate the two features mentioned above.
+
+
+There were also a number of internel changes, such as the removal of
+the AssocTable code that forced a dependence on the X10 compatability
+library. The positioning of the pointer within windows and the positioning
+of the pull-right menus themselves was also changed somewhat, since
+using the menu package from a window manager required that the menu
+package be a little less exacting about things and give the user more
+room for error.
+
+Finally, there were a few changes made for the window manager itself,
+such as support for the "AutoSelect" mode people had come to know
+and love(?) from uwm.
+
+
+If anyone feels ambitious enough to reverse-engineer these changes into
+RTL's version 3 package, or to author a totally new menu package with
+the features I need, I'll be more than happy to adopt it. In the mean
+time, I have other issues which are, unfortunately, more pressing.
+
+
+					Jordan Hubbard

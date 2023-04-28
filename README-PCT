@@ -1,0 +1,85 @@
+This is the good old Ardent Window Manager ported to Solaris 10
+and subsequently illumos (Tribblix).
+
+To build, type make.
+
+I've made the following changes:
+
+The Makefile defines DESTDIR to /usr/openwin, STD_DEFINES to -DSYSV,
+and links the libraries as -lX11 rather than .../libX11.a
+
+Added #include <unistd.h> to Error.c, exp_path.c, awm.c
+
+Added #include <sys/fcntl.h> to awm.c
+
+In awm.c, guard setpgrp with SYSV like in Error.c
+
+Removed local function definitions of malloc() and calloc()
+
+Fixed XParseColor call - delete unused last argument
+
+Created a system.awmrc
+
+More recently, I've had to make more changes to keep up with modern compilers
+
+Removed another local definition of malloc(), realloc();
+
+Tidy up inconsistent definitions
+
+Lint the manpage slightly, fix typos
+
+Remove binary objects
+
+Eliminate openwin references
+
+=====================================================
+
+I build the packages like so:
+
+make
+mkdir -p /tmp/usr/usr/openwin/share/man/man1
+mkdir -p /tmp/usr/usr/openwin/bin
+mkdir -p /tmp/usr/usr/openwin/lib/X11/awm
+cp awm /tmp/usr/usr/openwin/bin/
+cp awm.man /tmp/usr/usr/openwin/share/man/man1/awm.1
+cp system.awmrc /tmp/usr/usr/openwin/lib/X11/awm
+cp -pr bitmaps /tmp/usr/usr/openwin/lib/X11/awm
+cp awm.Xdefaults /tmp/usr/usr/openwin/lib/X11/awm
+mkdir -p /tmp/usr/usr/dt/config/C/Xresources.d
+mkdir -p /tmp/usr/usr/share/xsessions
+cp Xresources.awm /tmp/usr/usr/dt/config/C/Xresources.d
+cp Xsession*.awm /tmp/usr/usr/dt/config
+cp Xinitrc.awm /tmp/usr/usr/dt/config
+cp awm.desktop /tmp/usr/usr/share/xsessions
+
+cd /tmp/usr
+
+cat > depend <<_EOF
+# manually derived dependencies for awm
+P SUNWcsl
+P SUNWlibms
+P SUNWxwplt
+P SUNWxwrtl
+_EOF
+
+cat > pkginfo <<_EOF
+PKG=PCTawm
+NAME=AWM window manager
+DESC=The Ardent Window Manager
+VERSION=1.2,REV=1.00
+BASEDIR=/
+VENDOR=Peter Tribble
+EMAIL=peter.tribble@gmail.com
+CATEGORY=application
+_EOF
+
+rm prototype
+touch prototype
+echo "i pkginfo=./pkginfo" >> prototype
+echo "i depend=./depend" >> prototype
+pkgproto usr | awk '{ $5 = "root"; $6 = "bin" } {print}' | awk '{if ($3 == "usr/share")  $6 = "sys"} {print}' | awk '{if ($3 == "usr/share/xsessions")  $6 = "other"} {print}' | awk '{if ($3 == "usr")  $6 = "sys"} {print}' >> prototype
+
+pkgmk -r . -b . -o -d ..
+
+cd ..
+pkgtrans -s . PCTawm.`uname -p`.pkg PCTawm

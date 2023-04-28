@@ -1,0 +1,82 @@
+       MENU_LIB = menus
+      MENU_ARCH = $(MENU_LIB)/rtlmenu.a
+     NEATEN_LIB = /grgr/neaten
+    NEATEN_ARCH = $(NEATEN_LIB)/neaten.a
+  SYS_LIBRARIES = -ll -lm
+      OTHERSRCS = gram.y lex.l
+         YFLAGS = -d
+         HFILES = awm.h neaten.def.h neaten.ext.h support.h
+
+# The following defines can be added to the approprate DEFINES macro
+# (see below) to enable additional features.
+#
+# -DCONSOLE if you want output (stderr and stdout) to go to the system console.
+#
+# -DWMSTATE if you want the XA_WM_STATE atom to reflect the state of each
+#     top-level window (I.E. iconified, not iconified, etc).
+#
+# -DRAINBOW if you want to be able to specify border colors on a client or
+#     class basis.
+#
+# -DLOCKSCR if for some reason you want a lockscreen function built into
+#     the window manager. Could be just as easily done by invoking a program,
+#     but some like to put all their eggs in one basket.
+
+# Use these macros if you want the RTL Neaten package.
+# Also make sure that NEATEN_LIB points to the right place. See the README
+# file for instructions (though you can just define this and give it a shot).
+#       DEFINES = -DSYSFILE=\"$(AWMDIR)$(PATHSEP)system.awmrc\" -DNEATEN
+#       LOCAL_LIBRARIES = $(NEATEN_ARCH) $(MENU_ARCH) $(XMULIB) $(XLIB)
+
+
+# Use these macros if you don't want the RTL Neaten package.
+        DEFINES = -DSYSFILE=\"$(AWMDIR)$(PATHSEP)system.awmrc\" -DWMSTATE -DLOCKSCR
+        LOCAL_LIBRARIES = $(MENU_ARCH) $(XMULIB) $(XLIB)
+        LINTLIBS = $(LINTXLIB)
+
+SRCS=	globals.c Beep.c Bindings.c CircleDown.c CircleUp.c\
+	Cursors.c Focus.c GetButton.c  GridBox.c Iconify.c Icons.c Lower.c\
+	Menu.c Move.c MoveOpaque.c NewIconify.c Pause.c Push.c Error.c\
+	Raise.c Refresh.c Resize.c Restart.c RubberBand.c StoreBox.c \
+	StoreZap.c XError.c awm.c FocusChng.c Titlebar.c errHndlr.c \
+	Grab.c menu_sup.c Gadget.c support.c exp_path.c Neaten.c \
+	lockscreen.c Lock.c
+
+OBJS=	gram.o lex.o globals.o Beep.o Bindings.o CircleDown.o CircleUp.o\
+	Cursors.o Focus.o GetButton.o GridBox.o Iconify.o Icons.o Lower.o\
+	Menu.o Move.o MoveOpaque.o NewIconify.o Pause.o Push.o Error.o\
+	Raise.o Refresh.o Resize.o Restart.o RubberBand.o StoreBox.o \
+	StoreZap.o XError.o awm.o FocusChng.o Titlebar.o errHndlr.o \
+	Grab.o menu_sup.o Gadget.o support.o exp_path.o Neaten.o \
+	lockscreen.o Lock.o
+
+ComplexProgramTarget(awm)
+NormalLintTarget($(SRCS) gram.c lex.c)
+
+InstallNonExec(system.awmrc, $(AWMDIR))
+
+$(MENU_ARCH)::
+	@echo Making menu package...
+	@(cd $(MENU_LIB); make CC=$(CC) CFLAGS="$(CFLAGS)")
+	@echo done.
+
+$(NEATEN_ARCH)::
+	cp Makefile.rtl $(NEATEN_LIB)/Makefile
+	@echo Making Neaten package
+	@(cd $(NEATEN_LIB); make -f Makefile)
+	@echo done.
+
+clean::
+	@echo Cleaning menus...
+	@(cd $(MENU_LIB); make clean)
+	@echo done.
+	rm -f y.tab.h
+
+noident::
+	@echo Removing ident lines from awm...
+	@for i in $(SRCS) $(OTHERSRCS) $(HFILES); do \
+	sed -e '/#ident/D' < $$i > /tmp/x.$$i && \
+	mv /tmp/x.$$i $$i ; \
+	done
+	@(cd $(MENU_LIB); make noident)
+	@echo done.

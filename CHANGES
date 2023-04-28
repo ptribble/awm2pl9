@@ -1,0 +1,244 @@
+This file last changed: 8/17/88
+
+The most recent changes to awm include:
+
+Invalid free() removed from gram.y.
+Transient window placement fixed.
+Signal handling done correctly for system V.
+
+Previous changes to awm:
+
+Changes as of 7/2/88:
+
+Border/title context rationalized, you may now have border contexts without
+ntitle bars and vice-versa.
+
+The whole paradigm for adding/removing various decorations has changed.
+Functions such as f.notitle and f.gadget have been replaced with the
+two functions f.decorate and f.nodecorate for reasons of simplicity.
+It's now possible to specify on an application-by-application (or class-by
+class) basis which "decorations" not to use. See the SPECIAL RESOURCES
+section of the man page for more information.
+
+Focus In/Out and Enter/Leave event handling now much more robust and
+highlighting occurs when it should.
+
+f.unfocus added for twm compatibility (not to mention general convenience).
+
+The window name is now centered correctly in the titlebar (the net result
+being that the titlebar background doesn't creep around the edges the way
+it used to).
+
+def.awmrc/system.awmrc ambiguity finally resolved in favor of system.awmrc.
+The man page and makefile should now agree on this one.
+
+Many bugs and general nits fixed.
+
+Two lines of whitespace added after #ident lines to keep patch from
+including them in context information (for those who have removed them).
+
+Things have been sped up a bit.
+
+Version numbers set to 1.1 in all files. Subsequent versions of awm will
+increment this accordingly (major_release.fix_level).
+
+Menus should now work on color systems.
+
+Weird nit with XGetClassHint() that caused coredumps fixed.
+
+Man page re-written substantially (Thanks to Bill Wohler), the format
+of the resource descriptions below reflect part of his changes.
+
+New make rule "noident" added for awm and awm/menus makefile. Doing
+a "make noident" in the awm directory will remove all #ident lines from
+awm and the menus. We use #ident at ardent without trouble (and on the
+suns), but it seems to choke DEC's compilers. I'm not sure if this
+is legal ansi anymore or not. In any case, if #ident chokes your compiler,
+this will remove it.
+
+New resources:
+
+FrameFocus (boolean) ``off''
+ Specifies whether or not focus changes should be looked for on the
+ client window (as they are now) or on the frame.
+ In a nutshell, if you set this to "off", the window will be not
+ change state (be this highlight or stacking level) until you've
+ left the frame (this includes the title bar) entirely. Correspondingly,
+ enter highlight/autoraise is also done on the whole frame.
+ This resource also has the side-effect of making the focus follow the
+ pointer explicitly. Thus typing into titlebars will cause the keyboard input
+ to go to the client window as expected.
+ 
+border.foreground (string) ``foreground''
+ Lets you specify the border color for awm's "frame" windows.
+
+
+Changes as of 6/6/88
+New resources:
+
+windowName.offset: (int)
+ Specifys an offset for the window name, rather than
+ centering it.
+
+title.height: (int)
+ Allows you to physically set the height of titlebars (in pixels)
+ to some value, rather than having it be derived from the size of
+ the title font(s).
+
+gadget.border: (int)
+ Allows you to set the width of gadget box borders to some
+ value.
+
+border.hilite: (boolean)
+ Specifies whether or not to change border colors on focus in/out.
+ If this is undefined, and hilite is, it is set to the value of
+ hilite. Since is was already possible to specify whether or not
+ the window name and title background would be affected by focus
+ changes, this resource rounds out the list.
+
+For demonstration purposes are two files "twm.awmrc" and "twm.Xdefaults"
+that can be used to make awm look very much like twm. If you want to try
+this out, edit twm.Xdefaults so that the awm.path variable points to
+/.../awm/bitmaps and load it into your resource manager.
+
+
+A few more bugs were fixed. Pixmap icons should now stay sane.
+Bad gravity specifications should be handled gracefully.
+cursor glyph gadget boxes should now be the correct size.
+A problem with FocusChange was fixed.
+The restriction of compiling XRdBitFD only with Xlib has been lifted.
+
+Autoselect now works in submenus. Menu item positioning has been
+improved.
+
+Changes as of 6/3/88:
+
+Bug fixes/enhancements for first release.
+
+A new context named "border" has been added. When enabled (by giving it a width, see
+man page), it results in an artificial border area to which actions may be bound.
+See the man page for information on configuring this.
+
+It is now possible to bind to "text action" strings in the same manner as functions
+and menus. Specifically, you may now invoke programs and manipulate the cut buffer
+directly through bindings rather than having to go through menus. See the man
+page for a more thorough explanation.
+
+Cursors for title bars and border contexts (new) are now definable resources.
+
+"resizeRelative" option from R2 uwm folded in along with uwm bug fixes.
+
+New title.push option allows you to specify whether you want titles to push windows
+down to make room (the default) or be added on top without moving them.
+
+Support for the RTL Neaten package has been added. See the README file if you
+wish to compile it in.
+
+To avoid some confusion, it's now manadatory that you compile XRdBitFD.c into Xlib.
+Seperate compilation is no longer supported. The resulting inconvenience is relatively
+minor compared to what some people with irregular source trees experienced when trying
+to compile it as part of awm.
+
+Many bugs have been fixed, most notably a race condition on window mapping,
+mapping/unmapping of windows, bogus event masks to gadgets, resize weirdness,
+rubber banding and a number of coordinate botches that resulted from
+adding frames around things. It's now possible to compile awm with gcc 1.22,
+though I don't know about the neaten package.
+
+
+Bug fixes to Beta.3
+
+DEF_FONT is now in awm.h where it belongs and GetFontRes() has been
+modified to use it.
+
+Some of the default specs in awm.h have been ifdef'd so that you can
+also specify them at compile time. Currently, you can do this for the font specs:
+
+NAME			Default value
+----			-------------
+DEF_FONT		"fixed"
+DEF_TITLE_FONT		"vtsingle"
+DEF_ICON_FONT		"8x13"
+DEF_POPUP_FONT		"9x15"
+DEF_GADGET_FONT		"fixed"
+DEF_MENU_FONT		"8x13"
+DEF_BOLD_FONT		"8x13bold"
+
+And the name and class of awm:
+
+NAME			"awm"
+CLASS			"Wm"
+
+It's still suggested that you change them in awm.h when you're configuring
+awm for your site, but this gives you an additional way of setting them.
+
+Changes for beta release 3.
+
+1. Total rewrite of Iconify.c and NewIconify, problems fixed are iconic
+startup, icon/window positioning, icon_mask hints.
+
+2. Each gadget may now have its own font, rather than having to
+use a global gadget font (though this is still the default).
+Non-printable characters can also now be specified, allowing you
+to grab individual glyphs out of fonts and use them in gadgets.
+The is probably most useful for getting things out of the cursor font.
+See the man page for details.
+Note: Though much of the necessary code is in place, it still is not
+possible to use 16 bit fonts for this purpose. Though I'd love
+to have gadgets containing Kanji glyphs (a picture is worth a thousand
+words, especially in Kanji) and the like, I still don't know enough
+about the mechanism to know how and when to use the X*Text*16 routines,
+or how to store the "string" in such a way that it could be
+painted into an 8 bit font as well.
+
+3. Overall structure of the window manager has changed slightly.
+The code should be easier to read and debug.
+
+4. New "wall" boolean allows you to constrain moves to the edges of
+the screen.
+
+5. Some things that should have been getting their colors out of
+the resource database now do.
+
+6. Window name and class are now both checked when determing whether
+or not to title a window.
+
+7. Icons now use save-unders.
+
+8. Certain operations should be faster.
+
+9. The man page has been made more readable and updated somewhat.
+
+
+CHANGES OVER UWM:
+
+This window manager represents a fairly large departure from uwm
+in the following ways:
+
+ o	There are title bars and gadget boxes that represent fully independent
+	contexts now (I.E. you can bind to them without conflict).
+
+ o	Icons now represent a truly independent context.
+
+ o	The menus have changed completely to allow walking menus and
+	more flexibility as to contents (pictures or text) of individual panes.
+	The menu interface has also been de-coupled somewhat from awm so
+	that another menu package could be substituted at a
+	later date. When an "official" toolkit menu widget exists, this
+	will probably happen.
+
+ o	Boolean variables may be set within menus and are also displayed
+	with a checkmark (depending on whether or not they're set).
+
+ o	Some effort is made to use save-unders and/or to minimize expose
+	events due to window manager actions.
+
+ o	Autoraise and border highlighting are available on focus.
+
+ o	Almost everything has been moved out of the .awmrc file and into
+	the resource database where it belongs.
+
+ o	awm now supports a startup file that makes usage from xinit more
+	friendly.
+
+ 

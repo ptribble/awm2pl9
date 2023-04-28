@@ -1,0 +1,956 @@
+.de EX          \" Begin example
+.ne 5
+.if n .sp 1
+.if t .sp .5
+.nf
+.in +.5i
+..
+.de EE		\" End example
+.fi
+.in -.5i
+.if n .sp 1
+.if t .sp .5
+..
+.TH AWM 1 "23 July 1988" "X Version 11"
+.SH NAME
+awm - Window Manager X Client Application
+.SH SYNOPSIS
+.B awm
+[
+.B \-f
+filename
+] [
+.B \-e
+execfile
+] [
+.B \-b
+] [
+.B \-i
+]
+.SH DESCRIPTION
+The \fIawm\fP command is a window manager client 
+application of the window 
+server. It is heavily based on an earlier work by M. Gancarz
+of Digital Equipment Corporation (see the end of this document for
+appropriate acknowledgments).
+.PP
+When \fIawm\fP is invoked, it traces a predefined search path
+to locate any \fIawm\fP startup files.  If no startup files
+exist, \fIawm\fP initializes itself from a built-in default file.
+.PP
+If startup files exist in any of the following locations,
+their contents are merged together to create \fIawm\fP's configuration.
+In the case of contention, the bindings in the last file found
+override previous specifications.  Files in the \fIawm\fP
+search path are:
+.EX
+$LIBDIR\fI/awm/system.awmrc\fP (where $LIBDIR is defined in awm's Makefile)
+$HOME\fI/.awmrc\fP
+.EE
+.PP
+To use only the settings defined in a single startup file,
+include the variables, \fBresetbindings\fP, \fBresetmenus\fP and
+\fBresetgadgets\fP at the top of that specific startup file.
+.SH OPTIONS
+.IP "\fB\-f\fP filename"
+Names an alternate file as an \fIawm\fP startup file.
+.IP "\fB\-e\fP execfile"
+Names a file to exec (typically a shell script invoking other clients) after
+all startup files have been loaded. This is useful for minimizing the number of
+map/unmaps that occur when titlebars are added.
+.IP "\fB\-b\fP"
+Causes \fIawm\fP to ignore the system startup file.
+.IP "\fB\-i\fP"
+Causes \fIawm\fP to ignore $HOME/\fI.awmrc\fP.
+.SH STARTUP FILE VARIABLES
+Variables are typically entered first, at the top of the startup
+file. Because of a merge with the resource manager, very few variables
+are set here now. The directives \fBresetbindings\fP, \fBresetmenus\fP
+and \fBresetgadgets\fP are still allowed, as are gadget declarations of
+the form:
+.EX
+\fBgadget[\fP\fIn\fB]\fP=\fIexpr\fP
+.EE
+.PP
+Where \fIn\fP is a positive integer indicating the gadget to initialize and
+\fIexpr\fP is one of the following:
+.IP "\fIstring\fP or ""\fIstring\fP"" [ ^ \fIattributes\fP ]"
+Set the name of the gadget to \fIstring\fP. The name will be
+painted in the gadget box with the \fBgadget.font\fP resource
+or an overriding font attribute (see below).
+\fIstring\fP may contain embedded non-alphanumeric characters
+in the form of \\\fI#\fP where \fI#\fP is one or more decimal digits (i.e. \\54)
+or \\\fIc\fP where \fIc\fP is a character in the standard C string
+literal set (i.e. n, r, t, f). This is useful if you've specified
+a gadget font with glyphs in it (such as cursor) and you want to paint
+a specific glyph from it in a gadget box. Many such glyphs are not
+represented by ascii characters.
+.IP "(\fIstring\fP) [ ^ \fIattributes\fP ]"
+Load a pixmap from the file named by \fIstring\fP and
+tile the gadget with it (see also: \fBpath\fP).
+.PP
+Additional \fIattributes\fP may be specified after a '^' (caret)
+character in the form:
+.IP "\fIoffset\fP|\fIgravity\fP|\fIforeground\fP|\fIbackground\fP|\fIfont\fP"
+Any omitted parameters will be set to default values.
+.IP
+\fIoffset\fP is an integer specifying how far to place this
+gadget from its nearest neighbor (or an edge). Default
+offset is \fBgadget.pad\fP, or 2 if \fBgadget.pad\fP is not
+defined.
+.IP
+\fIgravity\fP is one of \fBNoGravity\fP, \fBLeftGravity\fP,
+\fBRightGravity\fP or \fBCenterGravity\fP. \fBNoGravity\fP specifies that
+the gadget is to be placed opposite of wherever the last gadget was
+placed.
+\fBLeftGravity\fP specifies that the gadget should stick to
+the left of the title bar, \fBRightGravity\fP to the right and
+\fBCenterGravity\fP to the center.
+.IP
+\fIforeground\fP and \fIbackground\fP specify the colors used to
+tile the gadget or draw the text.
+.IP
+\fIfont\fP is the name of the font you want the gadget's name
+drawn in. This overrides the \fBgadget.font\fP setting for this
+gadget.
+.IP
+The default values for \fIattributes\fP are 0, \fBNoGravity\fP, black
+(\fBreverse\fP: white) and white (\fBreverse\fP: black), the setting
+of \fBgadget.font\fP.
+.PP
+It is important to note that in the absence of a \fIgravity\fP specification
+(i.e. we've defaulted to \fBNoGravity\fP), the window manager will
+automatically place a gadget on the side opposite of the last gadget
+placed. If it's the first gadget placed, it will go to the right.
+Thus in the absence of any \fIgravity\fP (or \fIoffset\fP) specifications,
+the window manager will place gadgets in a right-left-right fashion
+until all gadgets have been placed.
+.PP
+For example:
+.EX
+gadget[0] = "die"
+gadget[1] = (resize.b) ^ 2 | red | orange
+gadget[2] = (iconbox.b) ^ | LeftGravity
+gadget[3] = "\\56" ^ | LeftGravity | green | black | cursor
+.EE
+.PP
+These declarations will create 4 gadget boxes, situated in the
+following manner:
+.PP
+The first gadget box will be created wide enough to print the
+word "die" in it (in whatever gadget font has been defined) and
+will be placed on the right side (since it hasn't chosen a gravity)
+against the edge (since it hasn't chosen an offset).
+Background and foreground colors will be black and white
+(assignment depending on whether \fBreverse\fP is set).
+.PP
+The second gadget box will be tiled with the contents of the
+file "resize.b" (assuming that it's a valid bitmap file) and
+will go on the left side (since it also has no gravity and the
+last one went on the right). It will be offset from the edge by 2
+pixels since there was an offset for it. Foreground will be
+red, background will be orange.
+.PP
+The third gadget will be tiled with the contents of "iconbox.b"
+and will be placed against the second gadget on the left hand
+side since we specified a gravity. Colors will be black and white
+(depending on \fBreverse\fP).
+.PP
+The fourth gadget will display glyph #56 from the cursor font
+in green and black (it's gumby of course).
+.PP
+IMPORTANT: Gadgets may be declared in any order, but you are
+not allowed to leave gaps, i.e..it's perfectly acceptable to
+declare gadgets in the order 0, 2, 3, 1, but \fBnot\fP legal to
+declare gadgets in the order 0, 3, 2, 4 as gadget #1 has been
+omitted. This restriction may be removed in the future, but
+for now you'll get a diagnostic and \fIawm\fP will exit.
+.PP
+All other variables controlling window manager behavior are described in
+the \fBX DEFAULTS\fP section of this man page.
+.SH BINDING SYNTAX
+Mouse buttons may be bound to particular window manager functions with:
+.EX
+"\fIfunction\fP=[\fImodifier key(s)\fP]:[\fIcontext\fP]:\fImouse events\fP:\fI" menu name "\fP
+.EE
+or 
+.EX
+"\fIfunction\fP=[\fImodifier key(s)\fP]:[\fIcontext\fP]:\fImouse events\fP:\fI" text action "\fP
+.EE
+.PP
+Function and mouse events are the only required fields.  The menu name is
+required with the \fIf.menu\fP function definition only.
+Similarly, text action is required only with the \fIf.action\fP
+function definition.
+.SH Function
+.IP \fBf.action\fP
+Invokes a text action. `text' should be in quotes with a preceding
+"action" character (one of '^', '!' or '|'). The syntax is identical to
+menu text actions which are discussed in greater detail under the \fBMenus\fP
+section of this document.
+.EX 0
+.B
+f.action=[\fImodifier key(s)\fP]:[\fIcontext \fP]:\fImouse events\fP:\fIaction" text "\fP
+.EE
+.IP "\fBf.beep\fP" 15
+emits a beep from the keyboard.  Loudness is determined by 
+the volume variable.
+.IP \fBf.circledown\fP
+causes the top window that is obscuring another 
+window to drop to the bottom of the stack of windows.  
+.IP \fBf.circleup\fP
+exposes the lowest window that is obscured by other
+windows. 
+.IP \fBf.continue\fP
+releases the window server display action after you 
+stop action with the \fBf.pause\fP function.  
+.IP \fBf.destroy\fP
+calls XKillClient on the selected window. Use with caution!! Binding it to
+naked mouse buttons is probably not a good idea!
+.IP \fBf.exit\fP
+exits the window manager. If you've started \fIawm\fP from
+\fIxinit\fR (actually sort of useful now that the \fB\-e\fP flag
+has been added), this will also exit the window system.
+.IP \fBf.focus\fP
+directs all keyboard input to the selected window.
+To reset the focus to all windows, invoke \fIf.focus\fP from the root
+window.
+.IP \fBf.iconify\fP
+When implemented from a window, this function converts the window 
+to its respective icon.  When implemented from an icon, 
+f.iconify converts the icon to its respective window.  
+.IP \fBf.lock\fP
+locks the screen by displaying random (and somewhat pretty) patterns.
+The lock can be exited by typing in your password or pulling the power
+cord for your system out of its socket.
+.IP \fBf.lower\fP
+lowers a window that is obstructing a window below it.
+.IP \fBf.menu\fP
+invokes a menu.  Enclose `menu name' in quotes if it
+contains blank characters or parentheses.  
+.EX 0
+.B
+f.menu=[\fImodifier key(s)\fP]:[\fIcontext \fP]:\fImouse events\fP:\fI" menu name "\fP
+.EE
+.IP \fBf.move\fP
+moves a window or icon to a new location, which becomes the
+default location.
+.IP \fBf.moveopaque\fP
+moves a window or icon to a new screen location.  When using this
+function, the entire window or icon is moved to the new screen
+location.  The grid effect is not used with this function.
+.IP \fBf.neaten\fP
+neatens the desktop using the RTL neaten package. See the \fBX DEFAULTS\fP
+for the resources necessary to customize this somewhat complex feature.
+This function only works if \fIawm\fP has been compiled with the -DNEATEN
+flag (which compiles in the neaten package). Invoking this function without
+this is a noop (though a warning diagnostic is printed to stderr).
+See the INSTALLATION section of the README document for more details.
+.IP \fBf.newiconify\fP
+allows you to create a window or icon and then position the window or
+icon in a new default location on the screen.
+.IP \fBf.pause\fP
+temporarily stops all display action.  To release the screen and
+immediately update all windows, use the \fBf.continue\fP function.
+.IP \fBf.pushdown\fP
+moves a window down.  
+The distance of the push is determined by the push variables.
+.IP \fBf.pushleft\fP
+moves a window to the left.  
+The distance of the push is determined by the push variables.
+.IP \fBf.pushright\fP
+moves a window to the right.  
+The distance of the push is determined by the push variables.
+.IP \fBf.pushup\fP
+moves a window up.  
+The distance of the push is determined by the push variables.
+.IP \fBf.raise\fP
+raises a window that is being obstructed by a window
+above it.
+.IP \fBf.refresh\fP
+results in exposure events being sent to the window server clients 
+for all exposed or partially exposed windows.
+The windows will not refresh correctly if the exposure events 
+are not handled properly.
+.IP \fBf.resize\fP
+resizes an existing window.  Note that some clients, notably
+editors, react unpredictably if you resize the window while the
+client is running.
+.IP \fBf.restart\fP
+causes the window manager application to restart,
+retracing the \fIawm\fP search path and initializing the variables it
+finds.
+.IP \fBf.\fP[\fBno\fP]\fBdecorate\fP
+adds or removes "decorations" on the selected window. What decorations are
+added (or deleted) depends on the settings of various booleans and
+client-specific resources (see: \fBSPECIAL RESOURCES\fP).
+
+The booleans \fBtitles\fP, \fBgadgets\fP and \fBborderContext.width\fP
+currently influence \fBawm\fP's choice of default decorations.
+.SH Modifier Keys
+It is preferable to use meta as a modifier key for \fBawm\fP (or
+any other window manager, for that matter), but one may also
+use ctrl, shift, lock, or null (no modifier key).  
+Modifier keys must be entered in lower case, and can be
+abbreviated as: c, l, m, s  for ctrl, lock, meta, and shift,
+respectively. It's also permissible to refer to the the modifier
+keys directly as "mod1, mod2, mod3, mod4 or mod5". A mouse button
+with no modifier key(s) is often referred to as a "naked" mouse
+button.
+.PP
+You may bind any number of modifier keys to a function,
+use the bar (|) character to combine them.
+.SH Context
+The context refers to the screen location of the cursor when a 
+command is initiated.  When you include a context entry in a 
+binding, the
+cursor must be in that context or the function will not be
+activated.
+The window manager recognizes the following seven contexts: 
+icon, window, root, title, gadget[\fIn\fP] (where \fIn\fP is the
+gadget number), border and (null).
+.PP
+The icon context refers to any icon and may be safely bound without
+interfering with window events.
+.PP
+The window context refers to application windows and should be
+used carefully to avoid usurping button events that applications
+may want for their own purposes.
+.PP
+The root context refers to the root, or background window.
+.PP
+The title context refers to the titlebar area of a window, if
+one exists.
+.PP
+The gadget context (with mandatory index) specifies a given
+gadget box. Binding to a gadget that's undefined (not initialized to
+anything) is an error.
+.PP
+The border context refers to the artificial border area created when
+the resource \fBborderContext.width\fP is defined (see \fBborderContext.width\fP
+under \fBX DEFAULTS\fP). Using this context when no border area exists
+(i.e. \fBborderContext.width\fP is not defined) is a noop.
+.PP
+A (null) context is indicated when the context field is left blank,
+and allows a function to be invoked from any screen location. This
+is basically equivalent to specifying all the possible contexts.
+.PP
+Combine contexts using the bar (|) character.
+.SH Mouse Buttons
+Any of the following mouse buttons are accepted (in lower case)
+and may be abbreviated as l, m, or r, respectively:  left, 
+middle, right.
+.PP
+With the specific button, you must identify 
+the action of that button.  Mouse actions 
+can be: 
+.IP "\fBdown\fP" 10 
+function occurs when the specified button is pressed down.
+.IP \fBup\fP
+function occurs when the specified button is released.
+.IP "\fBdelta\fP" 10
+indicates that the mouse must be moved the number of pixels specified 
+with the delta variable before the specified function is invoked.
+The mouse can be moved in any direction 
+to satisfy the delta requirement.
+.SH MENU DEFINITION 
+After binding a set of function keys and a menu name to
+\fBf.menu\fP, you must define the menu to be invoked, using the
+following syntax:
+.EX
+\fBmenu \fP= (\fIstring\fP) " \fImenu name\fP " {
+"\fIitem name\fP" : "\fIaction\fP"
+       . 
+       .
+       .
+}
+.EE
+.PP
+The \fIstring\fP in parenthesis is an optional argument which
+names a pixmap file (see also: \fBpath\fP) to use as
+the menu title rather than just using the name of the menu. This
+is generally only useful if you're using pixmaps for the menu
+panes as well (see below). Though the \fImenu name\fP isn't displayed
+when you specify \fIstring\fP, you still need to specify one for \fIawm\fP
+to use when looking up the binding to it.
+.PP
+Enter the \fImenu name\fP exactly the way it is entered with the 
+\fBf.menu\fP function or the window manager will not recognize the link.
+If the \fImenu name\fP contains blank strings, tabs or parentheses, it must
+be quoted here and in the \fBf.menu\fP function entry.  If you haven't
+chosen to display a pixmap title in \fIstring\fP, the menu name will be
+displayed at the top of the menu in whatever font has been chosen
+for \fBmenu.boldFont\fP (or its default).
+.PP
+You can enter as many menu items as your screen is long.  You  
+cannot scroll within menus.
+.PP
+Any menu entry that contains quotes, special characters,
+parentheses, tabs, or strings of blanks must be enclosed 
+in double quotes.  Follow the item name by a colon (:).
+.PP
+A special case is an item surrounded by parenthesis, which
+designates the \fIitem name\fP as the name of a pixmap file to
+tile the menu pane with. Given a pixmap for the menu title as well
+(see above), it's possible to create menus that are totally
+pictorial in nature. There are, however, two caveats. Due to the fact
+that it's easier to do, the pixmaps are used as backgrounds
+for the menu panes rather than painting them on whenever a given pane in
+exposed. This has rather ugly consequences if one of the pixmaps
+(or a line of text if a pane is textual) is larger than the others.
+Since the server replicates pixmaps over the entire window, it results
+in a "wallpaper" effect on the smaller pixmaps. The solution is to make all
+the pixmaps the same size and/or not mix in any text items that will need a
+wider pane. 
+.PP
+The second problem is that the check marks and pull-right indicators are
+always displayed in fixed positions on the right and left edges of menu
+panes. If your pixmaps try to use this real-estate, they may be partially
+covered by a check mark or pull-right pixmap. Design your menus with this
+in mind.
+.SH Menu Action
+.IP "Window manager functions"
+Any function previously described, e.g., \fBf.move\fP or \fBf.iconify\fP.
+Using \fBf.menu\fP results in a pull-right pane which you can use to "walk"
+between menus (see below). A "walk" can be done by moving the cursor onto
+the pull-right arrow displayed at the right edge of the pane, or by clicking
+another button in the pane while holding the original one down.
+.IP "Walking menus"
+Select the function \fBf.menu\fP and separate it from the \fImenu name\fP with
+a colon (:) i.e.
+.EX
+menu = "foo" {
+...
+Walking Menu:        f.menu:  "NextMenu"
+...
+}
+.EE
+.IP "Text actions"
+There are two kinds of special "actions" involving arbitrary strings
+of text. These are:
+.IP "Shell commands"
+Begin with an exclamation point (!) and set to run in
+background.  You cannot include a new line character within a shell
+command. 
+.IP "Text strings"
+Text strings are placed in the window server's cut buffer. The strings
+must be preceded by one of:
+.IP
+A carat (^), which is stripped off, signifies that
+the string will automatically be followed by a newline (I.E using '^'
+causes one to be added at the end).
+.IP
+A vertical bar (|), also stripped off, signifies the the string
+should not end with a newline.
+.IP "Booleans"
+Any boolean variable previously described, e.g., \fBreverse\fP or
+\fBautoraise\fP.  The current state of a boolean variable in a menu
+will be indicated with a check mark (a check mark means the boolean is
+set to true). Note that the boolean is *not* preceded by "awm." as
+it is in the resource database.
+.PP
+SPECIAL NOTE:
+.PP
+Menus bound to title bars, gadget boxes or borders cause (where logical)
+the selected menu action to occur automatically on the client window
+as opposed to having to select a window for the action. However, actions
+requiring mouse tracking (i.e. move, resize) will usually \fBnot\fP work well
+in this context. While this limitation will be eliminated in the near future,
+it is suggested that you use this feature to do things that do not
+require mouse tracking, such as raise, lower, iconify, etc.
+.SH Color Defaults
+Colors default to the colors of the root window 
+under any of the following conditions:
+.IP 1)
+If you run out of color map entries, either before or during an
+invocation of \fIawm\fP.
+.IP 2)
+If you specify a foreground or background color that does 
+not exist in the RGB color database ($LIBDIR/\fIrgb.txt\fP).
+.IP 3)
+If you omit a foreground or background color.
+.IP 4)
+If you specify no colors in the resource database.
+.bp
+.SH X DEFAULTS
+A number of variables that used to be specified in the \fI.uwmrc\fP file (of
+\fIuwm\fP, for those familiar with it) are now retrieved from
+the resource database. When a value cannot be found, a default 
+(compiled into \fIawm\fP) is substituted. A much wider range of
+options can be specified this way and it is suggested that you
+read the following section carefully before bringing up
+awm.
+.PP
+In the descriptions below, variable names are listed in boldface,
+their type in parenthesis, and their default value in double quotes.
+All resources are preceded by an implied "awm.", as is the standard.
+I.E. "autoraise" would be specified as: "awm.autoraise: ..." in the
+resource database.
+.sp
+.IP "\fBautoraise\fP (boolean) ``off''"
+Automatically raise a window to the top when it gains the
+input focus. See also: \fBraiseDelay\fP
+.IP "\fBautoselect\fP (boolean) ``off''"
+Specifies that the pointer be placed over the first
+item in a menu, rather than the title, when the menu is popped up.
+.IP "\fBbackground\fP (string)"
+The default background color for all other color
+choices in \fIawm\fP. If \fBreverse\fP is not set, this defaults
+to white, otherwise it defaults to black.
+References to \fBbackground\fP in this document
+refer to this resource.
+.IP "\fBborder.foreground\fP (boolean) ``\fBforeground\fP''"
+Specifies the border color to use for all windows (this color
+may be drawn solid or stippled, depending on the window focus and
+the setting of \fBborder.hilite\fP).
+.IP "\fBborder.hilite\fP (boolean) ``on''"
+Specifies whether or not window border colors are to
+be changed on focus changes. On focus in, the window border is
+changed to solid \fBborder.foreground\fP. On focus out, it is changed to a
+"gray" stipple.
+.IP "\fBborderContext.background\fP (string) ``\fBbackground\fP''"
+Background color to use for border context pixmap.
+Value is meaningless if \fBborderContext.width\fP and \fBborderContext.pixmap\fP are undefined.
+.IP "\fBborderContext.boldPixmap\fP (string) ``none''"
+The name of a pixmap file to load and tile the border context area
+with when the focus is in. If this is defined, and \fBhilite\fP is set,
+focus changes will cause the border context background to alternate between
+\fBborderContext.pixmap\fP and \fBborderContext.boldPixmap\fP. If \fBborderContext.boldPixmap\fP
+is defined, but \fBborderContext.pixmap\fP is not, a blank pixmap will be used in place of
+\fBborderContext.pixmap\fP.
+.IP "\fBborderContext.cursor\fP (int) ``XC_cross''"
+Glyph (in decimal) to retrieve from cursor font for use in
+border context.
+.IP "\fBborderContext.foreground\fP (string) ``\fBforeground\fP''"
+Foreground color to use for border color pixmap.
+Value is meaningless if \fBborderContext.width\fP and \fBborderContext.pixmap\fP are undefined.
+.IP "\fBborderContext.pixmap\fP (string) ``\fBbackground\fP"
+Pixmap to display as border context area background.
+Value is meaningless is \fBborderContext.width\fP is undefined (or set to zero).
+Used exclusively as the background unless \fBborderContext.boldPixmap\fP and
+\fBhilite\fP are defined.
+.IP "\fBborderContext.width\fP (int) ``0''"
+Number of pixels wide to make the border context. Though
+functions may be bound to the border context (see: \fBContext\fP)
+without setting this, they will be impossible to invoke due to the
+fact that there will be nothing to click on. The border context
+should not be confused with the actual window border. It is an
+artificial area around each window that resembles a border.
+.IP "\fBdelta\fP (int) ``1''"
+Number of pixels that must be moved over before a "delta" action
+is taken (see: \fBBINDING SYNTAX\fP).
+.IP "\fBforeground\fP (string)"
+The default foreground color for all other color
+choices in \fIawm\fP. If \fBreverse\fP is not set, this defaults
+to black, otherwise it defaults to white. 
+References to \fBforeground\fP in this document
+refer to this resource.
+.IP "\fBframeFocus\fP (boolean) ``off''"
+[De]highlight when the pointer [leaves] enters the "frame" of the
+window (the frame includes the client window, title bar and border context
+areas, if present). Setting this option also causes the focus to follow
+the pointer so that keyboard input will go the the client regardless of
+where the pointer is in the "frame".
+.IP "\fBfreeze\fP (boolean) ``off''"
+Lock out all other clients during certain window manager tasks,
+such as move and resize.
+.IP "\fBgadget.border\fP (int) ``1''"
+The width of all gadget borders in pixels.
+.IP "\fBgadget.font\fP (string) ``fixed''"
+Which font to use for (textual) gadget labels.
+.IP "\fBgadget.pad\fP (int) ``3''"
+The number of pixels to pad a gadget from its neighbor if it has
+no offset defined.
+.IP "\fBgadgets\fP (boolean) ``off''"
+Display gadgets in title bars, if any are declared.
+.IP "\fBgrid\fP (boolean) ``off''"
+Display a finely ruled grid when positioning or resizing
+windows/icons.
+.IP "\fBhilite\fP (boolean) ``off''"
+Causes the following actions to occur when a window gains the input
+focus:
+.EX
+1. If \fBshowName\fP is on:
+
+   1a.	If \fBtitle.boldFont\fP is defined, the window name is redrawn
+	in this font.
+
+   1b.	If it's not, then the window name is redrawn in reverse video.
+
+2. If \fBtitle.boldPixmap\fP is defined, the background of the title bar
+   is set to it.
+
+3. If \fBborderContext.boldPixmap\fP is defined, the background of the border
+   context area is set to it.
+.EE
+.IP
+On focus out, the window name is redrawn in \fBtitle.font\fP
+the title background to \fBtitle.pixmap\fP and the border context
+to \fBborderContext.pixmap\fP, respectively.
+.IP
+If \fBborder.hilite\fP is undefined, this variable will set it
+automatically.
+.PP
+\fBNote that most icon variables only affect icons owned by \fIawm\fP.
+Except for foreground and background colors, client created
+icons are left alone.\fR
+.IP "\fBicon.background\fP (string) ``\fBbackground\fP''"
+Icon (pixmap) background color.
+.IP "\fBicon.backpixmap\fP (string) ``grey''"
+Pixmap to display as icon background for text icons.
+Note that this pixmap is only used for "text" icons, I.E. icons
+in the \fBuwm\fP style of a line of editable text. This should
+typically be cross hatch pattern or some similar background weave
+that will be displayed surrounding the text. For "pictorial" icons,
+use \fBicon.defpixmap\fP.
+See also: \fBpath\fP, \fBicon.foreground\fP, \fBicon.background\fP,
+\fBicon.defpixmap\fP.
+.IP "\fBicon.border\fP (string) ``\fBicon.foreground\fP''"
+Color to use for icon borders.
+.IP "\fBicon.borderWidth\fP (int) ``2''"
+Width of icon border in pixels.
+.IP "\fBicon.defpixmap\fP (string) ``xlogo''"
+For windows that don't specify their own pixmaps, use this image.
+This is only useful if \fBicon.labels\fP is turned on.
+.IP "\fBicon.font\fP (string) ``8x13''"
+Which font to use for icon text.
+.IP "\fBicon.foreground\fP (string) ``\fBforeground\fP''"
+Icon (pixmap) foreground color.
+.IP "\fBicon.hPad\fP (int) ``2''"
+Number of pixels to pad icon text horizontally.
+.IP "\fBicon.labels\fP (boolean) ``off''"
+Specifies that icons should be displayed in the "twm" style. I.E.
+The icon pixmap (or \fBicon.defpixmap\fP if the window has no icon
+pixmap) with the icon name displayed underneath (or above, if
+\fBicon.labelTop\fP is set).
+.IP "\fBicon.labelTop\fP (boolean) ``off''"
+Specifies that "labeled" icons should have the text portion displayed
+on top, rather than the bottom. Only useful if \fBicon.labels\fP is
+set.
+.IP "\fBicon.vPad\fP (int) ``2''"
+Number of pixels to pad icon text vertically.
+.IP "\fBicon.text.background\fP (string) ``\fBicon.background\fP''"
+Background color to use for icon text.
+.IP "\fBicon.text.foreground\fP (string) ``\fBicon.foreground\fP''"
+Foreground color to use for icon text.
+.IP "\fBinstallColormap\fP (boolean) ``false''"
+Install a given window's colormap when the pointer enters it.
+When the pointer leaves, the default colormap is installed.
+.IP "\fBmenu.background\fP (string) ``\fBbackground\fP''"
+Menu background color.
+.IP "\fBmenu.boldFont\fP (string) ``8x13bold''"
+Which font to use for (textual) menu panes. Currently,
+the only pane using this font is the title pane (unless, of course,
+it's a pixmap).
+.IP "\fBmenu.border\fP (string) ``\fBforeground\fP''"
+Menu border color.
+.IP "\fBmenu.borderWidth\fP (int) ``2''"
+Width of menu border in pixels.
+.IP "\fBmenu.delta\fP (int) ``20''"
+Number of pixels to move on a "pull-right" pane before the submenu
+attached to it is popped up.
+.IP "\fBmenu.font\fP (string) ``8x13''"
+Which font to use in (textual) menu panes.
+.IP "\fBmenu.foreground\fP (string) ``\fBforeground\fP''"
+Menu foreground color.
+.IP "\fBmenu.itemBorder\fP (int) ``1''"
+Width of individual (menu) item borders.
+.IP "\fBmenu.pad\fP (int) ``2''"
+Number of pixels to pad menu text/pixmaps vertically.
+.PP
+The following resources pertain only to the RTL Neaten package and are
+ignored if \fIawm\fP has not been compiled with that option (see the
+INSTALLATION file).
+.IP "\fBneaten.absMinWidth\fP (int) ``64''"
+Indicates the amount of space in pixels, that is used
+as the absolute minimum width of a window during the
+neaten operation.
+.IP "\fBneaten.absMinHeight\fP (int) ``64''"
+Indicates the amount of space in pixels, that is used
+as  the absolute minimum height of a window during the
+neaten operation.
+.IP "\fBneaten.retainSize\fP (boolean) ``true''"
+Forces to windows to be at least their current size.
+Windows may overlap as a side effect.
+.IP "\fBneaten.fill\fP (boolean) ``true''"
+Allows windows to grow to their maximum size during
+the neaten  operation. Normally a window will grow only to
+the maximum  of its desired (based on the WM_NORMAL_HINTS property)
+and current size.
+.IP "\fBneaten.fixTopOfStack\fP (boolean) ``true''"
+Fixes the size and location of the window at the top of
+the  window  hierarchy.  If necessary, this window will
+overlap even other windows which can not be tiled.
+.IP "\fBneaten.keepOpen\fP (boolean) ``true''"
+Constrains all windows to remain open during the neaten
+operation.   No  windows will be iconized.  This operation
+may cause windows to overlap.
+.IP "\fBneaten.usePriorities\fP (boolean) ``true''"
+Assigns the windows priorities based on their stacking
+order (windows closer to the top in the stacking order
+are given higher priorities). Priorities are used when
+determining size and location of windows on the screen.
+.IP "\fBneaten.primaryIconPlacement\fP (string) ``\fBTop\fP''"
+Selects the side of the screen where icons are first
+placed.  Legal values are: \fBTop\fP, \fBLeft\fP, \fBBottom\fP, \fBRight\fP and
+\fBClosest\fP (to its current position).
+.IP "\fBneaten.secondaryIconPlacement\fP (string) ``\fBLeft\fP''"
+Determines where along the specified primary side
+the icon should be placed. Legal values are those for
+\fBneaten.primaryIconPlacement\fP plus \fBCenter\fP.
+Not used if \fBneaten.primaryIconPlacement\fP is \fBClosest\fP
+.IP "\fBnormali\fP (boolean) ``on''"
+Make sure that icons created with \fBf.newiconify\fP stay wholly within
+the root window (on screen), regardless of attempted placement.
+If off, put icons
+wherever the cursor is placed.
+.IP "\fBnormalw\fP (boolean) ``on''"
+Make sure that windows mapped with \fBf.newiconify\fP are placed on-screen,
+regardless of cursor position.
+If off, put windows wherever the cursor is placed.
+.IP "\fBpath\fP (string) ``null''"
+A number of items (titles, menus, etc) now allow you to specify
+a pixmap file, rather than just a text string to display. Since it
+would be tedious to type in full pathnames for these files if they
+all lived in the same places, the directory(s) named by \fBpath\fP are
+searched if the pixmap file's pathname does not begin with a slash (/)
+or tilde (~) and is not found in the current directory.
+.IP
+\fBpath\fP is a white-space separated list of one or more
+directories to search, much like that used by the Unix C-shell. The ~
+notation used to designate your (or someone else's) home directory is
+supported, but wildcards are not.
+.IP "\fBpopup.background\fP (string) ``\fBbackground\fP''"
+Background color to use for pop-up text.
+.IP "\fBpopup.borderWidth\fP (int) ``2''"
+Width of pop-up window border in pixels.
+.IP "\fBpopup.font\fP (string) ``9x15''"
+Which font to use for popup window text.
+.IP "\fBpopup.foreground\fP (string) ``"\fBforeground\fP''
+Foreground color to use for pop-up text.
+.IP "\fBpopup.pad\fP (int) ``4''"
+Number of pixels to pad pop-up text horizontally.
+.IP "\fBpushRelative\fP (boolean) ``on''"
+When a window is pushed, push 1/\fBpush\fP of the window.
+If off, move window \fBpush\fP pixels.
+.IP "\fBraiseDelay\fP (int) ``100''"
+Amount of time in milliseconds to wait (while window has focus)
+before raising. If pointer leaves window before time elapses, raise is not
+performed.
+.IP "\fBreverse\fP (boolean) ``on''"
+Reverse background/foreground colors for titles, menus,
+gadget windows, popup windows, etc. In the absence of any color
+specifications, this results in black-on-white.
+.IP "\fBrootResizeBox\fP (boolean) ``on''"
+Put the resize (popup) window in the upper left corner of the root
+window, rather than on the window being resized. This saves a potentially
+expensive refresh that would occur when the popup was unmapped. If your server
+supports save-unders,
+it's generally (but not always) better to turn \fBsaveUnder\fP
+on instead.
+.IP "\fBsaveUnder\fP (boolean) ``off''"
+Use save-unders for menus and pop-up windows. If the server does not
+support save-unders, this action does nothing.
+.IP "\fBshowName\fP (boolean) ``on''"
+Display the window name in a title (assuming that the window is titled
+in the first place).
+.IP "\fBtitle.background\fP (string) ``\fBbackground\fP''"
+Background color to use for title pixmap.
+.IP "\fBtitle.boldFont\fP (string) ``none''"
+Which font to use for titlebar labels if focus is and
+\fBhilite\fP is enabled. If this isn't set, and \fBhilite\fP
+is, the title text will be displayed with \fBtitle.font\fP in reverse video.
+.IP "\fBtitle.boldPixmap\fP (string) ``none''"
+The name of a pixmap file to load and tile titlebars with when
+the focus is in. If this is defined, and \fBhilite\fP is set, focus changes
+will cause title backgrounds to alternate between \fBtitle.pixmap\fP
+and \fBtitle.boldPixmap\fP. If \fBtitle.boldPixmap\fP is defined, but
+\fBtitle.pixmap\fP is not, a blank pixmap will be used in place of
+\fBtitle.pixmap\fP.
+.IP "\fBtitle.cursor\fP (int) ``XC_left_ptr''"
+Glyph (in decimal) to retrieve from cursor font for use in
+title bar.
+.IP "\fBtitle.font\fP (string) ``vtsingle''"
+Which font to use for titlebar labels. Used exclusively unless
+\fBtitle.boldFont\fP and \fBhilite\fP are set.
+.IP "\fBtitle.foreground\fP (string) ``\fBforeground\fP''"
+Foreground color to use when drawing background (both normal and
+bold) pixmaps.
+.IP "\fBtitle.pad\fP (int) ``2''"
+Number of pixels to pad title bar text vertically.
+.IP "\fBtitle.pixmap\fP (string) ``none''"
+The name of a pixmap file to load and tile titlebars with.
+This background is use exclusively unless the \fBtitle.boldPixmap\fP is
+defined and \fBhilite\fP is set.
+.IP "\fBtitle.text.background\fP (string) ``\fBtitle.background\fP''"
+Background color to use when drawing title bar text.
+.IP "\fBtitle.push\fP (boolean) ``false''"
+When adding a title bar or border context to a window, put the border or
+title bar area at the current x, y position and "push" the window down to
+make room. For windows with an upper edge at or near the top of the screen,
+this gives the most asthetically pleasing results. For windows near the
+bottom, it does not.
+If set to false, the title bar/border will be added "on top" and the window
+will not be moved down. Note that the setting of this resource also affects
+how the window is manipulated during resizes, title removals, etc.
+.IP "\fBtitle.text.foreground\fP (string) ``\fBtitle.foreground\fP''"
+Foreground color to use when drawing title bar.
+.IP "\fBtitles\fP (boolean) ``off''"
+Put title bars on all windows (both existing windows and new ones as
+they're created. See also: \fBf.title\fP
+.IP "\fBvolume\fP (int) ``2''"
+Specifies the bell volume (delta on volume set with \fIxset\fP).
+.IP "\fBwall\fP (boolean) ``off''"
+Restrict window movement to edges of screen (rootwindow).
+This feature is fairly handy and should probably be bound to a menu
+so that it can readily be turned on and off.
+.IP "\fBwarpOnDeIconify\fP (boolean) ``off''"
+Warp pointer to upper right corner of window on de-iconify.
+.IP "\fBwarpOnIconify\fP (boolean) ``off''"
+Warp pointer to center of icon on iconify.
+.IP "\fBwarpOnRaise\fP (boolean) ``off''"
+Warp pointer to upper left corner of window on raise.
+.IP "\fBwindowName.offset\fP (int) ``0''"
+Number of pixels from the right or left edge of a titlebar
+to print the window name (assuming that \fBshowName\fP is set).
+If this value is negative, the name will be offset \fBnameOffset\fP
+(plus the name length) pixels from the right edge. If the value
+is positive, then the name will be offset \fBnameOffset\fP pixels
+from the left edge. If the value is zero, the name will be centered.
+Since the length of a window name can vary dynamically, this value
+will be adjusted, when necessary, to ensure that the name is visible in
+the title bar.
+.IP "\fBzap\fP (boolean) ``off''"
+Causes ghost lines to follow the window or icon from its previous
+location to its new location during a move, resize or iconify operation.
+.SH SPECIAL RESOURCES
+.IP "\fIname\fP\fB.wm_option.autoRaise\fP (boolean) "
+.IP "\fIname\fP\fB.wm_option.borderContext\fP (boolean) "
+.IP "\fIname\fP\fB.wm_option.gadgets\fP (boolean) "
+.IP "\fIname\fP\fB.wm_option.icon.labels\fP (boolean) "
+.IP "\fIname\fP\fB.wm_option.title\fP (boolean) "
+.IP "\fIname\fP\fB.wm_option.foreground\fP (string) " [ Only if -DRAINBOW ]
+.IP "\fIname\fP\fB.wm_option.background\fP (string) " [ Only if -DRAINBOW ]
+
+These resources determine whether or not a given application really wants
+a title, gadgets, border context area, to be auto-raised etc etc..
+The application's CLASS and NAME (in the WM_CLASS property) are checked
+against the string supplied for \fIname\fP (for example:
+Xclock*wm_option.title:  off).
+.IP
+Specifying one of these resources overrides any other boolean
+settings (I.E. \fBawm.titles\fP or \fBawm.gadgets\fP) and
+may be used to turn things on and off at the application and/or
+class level for applications, regardless of \fBawm\fP's settings.
+
+Note: Both class and name resources are checked, and in that order. Thus
+specific applications may override settings for their class, if desired.
+.IP
+These resources are ``special'' as they are checked for under the
+application's name, not \fIawm\fP's; I.E. \fBxclock.wm_option.autoRaise\fP
+is not \fBawm.xclock.wm_option.autoRaise\fP as one might think.
+
+The resources \fBwm_option.foreground\fP and \fBwm_option.background\fP are
+only meaningful if awm has been compiled with -DRAINBOW. They allow
+the border color to be specified for individual applications/classes.
+.bp
+.SH EXAMPLES
+The following sample startup file shows the default window
+manager options:
+.EX
+# Global variables
+#
+resetbindings
+resetmenus
+#
+# Mouse button/key maps
+#
+# FUNCTION    KEYS  CONTEXT  BUTTON    MENU(if any)
+# ========    ====  =======  ======    ============
+f.menu =      meta  :     :left down   :"WINDOW OPS"
+f.menu =      meta  :     :middle down :"EXTENDED WINDOW OPS"
+f.move =      meta  :w|i  :right down
+f.circleup =  meta  :root :right down
+#
+# Menu specifications
+#
+menu = "WINDOW OPS" {
+"(De)Iconify":  f.iconify
+Move:           f.move
+Resize:         f.resize
+Lower:          f.lower
+Raise:          f.raise
+}
+
+menu = "EXTENDED WINDOW OPS" {
+Create Window:                  !"xterm &"
+Iconify at New Position:        f.lowericonify
+Focus Keyboard on Window:       f.focus
+Freeze All Windows:             f.pause
+Unfreeze All Windows:           f.continue
+Circulate Windows Up:           f.circleup
+Circulate Windows Down:         f.circledown
+}
+.EE
+.bp
+.SH RESTRICTIONS
+The color specifications have no effect on a monochrome system.
+There's currently no way to specify a keysym in place of a button
+(up/down/delta) specification. This restriction will be removed in
+the near future.
+.SH FILES
+.nf
+$LIBDIR/rgb.txt 
+$LIBDIR/font 
+/usr/skel/.awmrc
+$LIBDIR/awm/system.awmrc
+$HOME/.awmrc
+.fi
+.SH SEE ALSO
+Xserver(1)
+.SH AUTHOR
+.ce 3
+Copyright 1988
+Ardent Computer Corporation
+Sunnyvale, Ca
+.PP
+All Rights Reserved
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation, and that the name of Ardent Computer
+Corporation or the author not be used in advertising or publicity
+pertaining to distribution of the software without specific, written
+prior permission.
+.PP
+.ce 3
+COPYRIGHT 1985, 1986
+DIGITAL EQUIPMENT CORPORATION
+MAYNARD, MASSACHUSETTS
+ALL RIGHTS RESERVED.
+.LP
+THE INFORMATION IN THIS SOFTWARE IS SUBJECT TO CHANGE WITHOUT NOTICE AND
+SHOULD NOT BE CONSTRUED AS A COMMITMENT BY DIGITAL EQUIPMENT CORPORATION.
+DIGITAL MAKES NO REPRESENTATIONS ABOUT THE SUITABILITY OF THIS SOFTWARE FOR
+ANY PURPOSE.  IT IS SUPPLIED "AS IS" WITHOUT EXPRESS OR IMPLIED WARRANTY.
+.LP
+IF THE SOFTWARE IS MODIFIED IN A MANNER CREATING DERIVATIVE COPYRIGHT RIGHTS,
+APPROPRIATE LEGENDS MAY BE PLACED ON THE DERIVATIVE WORK IN ADDITION TO THAT
+SET FORTH ABOVE.
+.LP
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted, provided
+that the above copyright notice appear in all copies and that both that
+copyright notice and this permission notice appear in supporting documentation,
+and that the name of Digital Equipment Corporation not be used in advertising
+or publicity pertaining to distribution of the software without specific, 
+written prior permission.
+.PP
+M. Gancarz,
+DEC Ultrix Engineering Group, Merrimack, New Hampshire, using some algorithms
+originally by Bob Scheifler, MIT Laboratory for Computer Science
+.PP
+J. Hubbard, U.C. Berkeley, Berkeley, Ca. Ardent Computer, Sunnyvale,
+Ca. Various modifications and enhancements using code developed by M.
+Gancarz and Digital Equipment Corp.

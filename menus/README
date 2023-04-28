@@ -1,0 +1,51 @@
+Last changed February 8th, 1989
+
+Menus panes are now redrawn differently. Rather than waiting for
+a "side-effect" expose from a copy area, trackmenu() just draws them
+itself. This should result in substantially better behaviour on colour
+systems. A number of nits have been cleaned up as well.
+
+				Jordan Hubbard
+
+-----
+
+RTLMenus Version 1.0 Release 2.1
+
+This menu package was written at Siemens Research and
+Technologies Laboratory, Princeton, NJ, in the second half 
+kof 1987.
+
+The original basis for the source file menu.c was the menu
+package for version X10/6.6 of xterm (misc.c).  We thank the
+programmers who gave us this basis from which to expand.
+
+We wrote this package to meet the needs of the RTL Tiled
+Windows window manager which is under development here.
+We have simulated much of the functionality of the SunWindows
+Toolkit menus.  The package has been tested only on Suns.
+We welcome enhancements and changes, and we would appreciate
+hearing about them.  We'll be glad to accept bug reports, but
+we can't support this package beyond our own needs.  We are
+making it available because you 1) may be able to use it,
+and 2) may learn some tricks from it.
+
+We found the DBUG C Program Debugging Package by Fred Fish to
+be useful in debugging track_menu.c.  The DBUG macros remain,
+so you can use them to trace the code if you have DBUG
+available.  The Makefile assumes you do NOT have DBUG, and
+turns it off. 
+
+Adam J. Richter of UC Berkeley wrote an initial version of the
+menus while he was here last summer.  Joe Camaratta and Mike
+Berman designed and built the present version.  This work was
+performed with the guidance of Ellis Cohen and the assistance
+of Mark Biggers.
+
+We thank those who beta-tested the menus; in particular,
+thanks to George Sherouse and Mark Baushke for their useful
+suggestions. 
+
+--Mike Berman
+  berman%siemens@princeton.edu
+  (609)734-6500 x2293
+

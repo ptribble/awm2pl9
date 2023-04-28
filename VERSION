@@ -1,0 +1,8 @@
+Rev	Files					Reason
+1.1	First release
+1.2	FocusChng.c, awm.c, exp_path.c		vax compatability
+1.2	Gadget.c				incorrect gadget calcs.
+1.2	Icons.c					correct clip GC, hPad, vPad
+1.2	gram.y					cast, gadgets
+1.2 	awm.man					title.push, hPad, vPad
+1.2	awm.c					hPad, vPad.
