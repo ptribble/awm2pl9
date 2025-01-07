@@ -224,7 +224,7 @@ install:: system.awmrc
 
 $(MENU_ARCH)::
 	@echo Making menu package...
-	@(cd $(MENU_LIB); make CC=$(CC) CFLAGS="$(CFLAGS)")
+	@(cd $(MENU_LIB); make CC="$(CC)" CFLAGS="$(CFLAGS)")
 	@echo done.
 
 $(NEATEN_ARCH)::
